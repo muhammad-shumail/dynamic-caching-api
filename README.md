@@ -1,3 +1,6 @@
+
+# Dynamically Caching Data from JSONPlaceholder API
+
 Dynamically Caching Data from JSONPlaceholder API
 This is a simple web application that fetches data from the JSONPlaceholder API and caches it dynamically in the browser using localStorage. The application uses the axios library to make HTTP requests and the jquery library for DOM manipulation.
 
@@ -15,3 +18,19 @@ Future improvements
 Add error handling for failed HTTP requests.
 Allow users to specify the API endpoint and other settings through a configuration file.
 Use a more robust caching strategy, such as the Cache API or Service Workers.
+
+
+## Badges
+
+Add badges from somewhere like: [shields.io](https://shields.io/)
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
+
+
+## Authors
+
+- [@muhammad-shumail](https://github.com/muhammad-shumail)
+
+

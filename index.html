@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Dynamically Caching Data from JSONPlaceholder API</title>
+    <style>
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card {
+        background-color: #f0f0f0;
+        padding: 1rem;
+        margin: 1rem;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        min-width: 200px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Dynamically Caching Data from JSONPlaceholder API</h1>
+    <div class="container"></div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      let cachedData = null;
+      let cachedTime = null;
+      const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+
+      async function fetchData() {
+        if (cachedData && cachedTime && (Date.now() - cachedTime) < maxAge * 1000) {
+          console.log('Returning cached data...');
+          return cachedData;
+        }
+
+        console.log('Fetching data from the API...');
+
+        const headers = {};
+        const lastModified = localStorage.getItem('lastModified');
+        if (lastModified) {
+          headers['if-modified-since'] = lastModified;
+        }
+
+        const response = await axios.get(apiUrl, { headers });
+        if (response.status === 304) {
+          console.log('Serving from cache...');
+          cachedData = JSON.parse(localStorage.getItem('cachedData'));
+          cachedTime = Date.now();
+          return cachedData;
+        }
+
+        const data = response.data;
+        const cacheControl = response.headers['cache-control'];
+        if (cacheControl && cacheControl.includes('max-age=')) {
+          const maxAge = parseInt(cacheControl.split('max-age=')[1]);
+          localStorage.setItem('cachedData', JSON.stringify(data));
+          localStorage.setItem('lastModified', response.headers['last-modified']);
+          cachedData = data;
+          cachedTime = Date.now();
+          setTimeout(() => {
+            console.log('Cache expired, refreshing data...');
+            cachedData = null;
+            cachedTime = null;
+          }, maxAge * 1000);
+        }
+
+        return data;
+      }
+
+
+
+
+      async function renderData() {
+        const container = $('.container');
+        container.html('<p>Loading...</p>');
+
+        try {
+          const data = await fetchData();
+          const html = data.map(user => `
+            <div class="card">
+                  <h2>${user.name}</h2>
+                  <p>Email: ${user.email}</p>
+                  <p>Phone: ${user.phone}</p>
+              </div>`).join('');
+
+          container.html(html);
+
+          // Check if the response was served from cache
+          if (data.__cacheStatus === 'fromCache') {
+            console.log('Data served from cache');
+          } else {
+            console.log('Data fetched from API');
+          }
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          container.html(`<p>Error: ${error.message}</p>`);
+        }
+      }
+
+
+      renderData();
+    </script>
+  </body>
+
+</html>
